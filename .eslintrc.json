@@ -1,0 +1,4 @@
+{
+  "extends": ["expo", "plugin:tailwindcss/recommended"],
+  "plugins": ["tailwindcss"]
+}

@@ -5,7 +5,7 @@ export default function Index() {
 	return (
 		<View className="flex-1 items-center justify-center bg-cyan-200 gap-4 px-6">
 			<Text className="font-rubik-bold text-center text-3xl font-bold text-green-500">
-				Welcome to AISVILLE Estate.
+				Welcome to AISVILLE Estate 🏡 
 			</Text>
 			<Link href="/sign-in" asChild>
 				<Pressable className="rounded-md bg-blue-600 px-4 py-2">
