@@ -1,20 +1,27 @@
 import { Image } from "expo-image";
 import React, { ReactElement } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Dimensions,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import icons from "@/constants/icons";
 import images from "@/constants/images";
 
 const SignIn = (): ReactElement => {
+  const screenHeight = Dimensions.get("window").height;
   const handleLogin = () => {};
 
   return (
-    <SafeAreaView className="h-full bg-white">
+    <SafeAreaView className="mt-6 flex-1 bg-white">
       <ScrollView contentContainerClassName="h-full">
         <Image
           source={images.onboarding}
-          className="h-4/6 w-full"
+          style={{ width: "100%", height: screenHeight * 0.6 }}
           contentFit="contain"
         />
 
@@ -22,7 +29,7 @@ const SignIn = (): ReactElement => {
           <Text className="text-center font-rubik-semi-bold text-base uppercase text-black-200 ">
             Welcome to AISVILLE
           </Text>
-          <Text className="mt-2 text-nowrap text-center font-rubik-bold text-3xl text-black-300">
+          <Text className="mt-2 text-center font-rubik-bold text-2xl text-black-300">
             Let&apos;s Get You Closer to {"\n"}
             <Text className="text-primary-300">Your Ideal Home</Text>
           </Text>
@@ -37,7 +44,7 @@ const SignIn = (): ReactElement => {
             <View className="flex flex-row items-center justify-center">
               <Image
                 source={icons.google}
-                className="h-5 w-5"
+                style={{ width: 20, height: 20 }}
                 contentFit="contain"
               />
               <Text className="ml-2 font-rubik-medium text-lg text-black-300">
