@@ -1,6 +1,6 @@
 import { SplashScreen, Stack } from "expo-router";
-import { SafeAreaProvider } from "react-native-safe-area-context";
 
+import { GlobalProvider } from "@/lib/global-provider";
 import { useFonts } from "expo-font";
 import { useEffect } from "react";
 import "./globals.css";
@@ -18,6 +18,10 @@ export default function RootLayout() {
   useEffect(() => {
     if (fontsLoaded) {
       SplashScreen.hideAsync();
+      // client
+      //   .ping()
+      //   .then(() => console.log("Pinged appwrite server successfully"))
+      //   .catch(console.error);
     }
   }, [fontsLoaded]);
 
@@ -25,8 +29,8 @@ export default function RootLayout() {
     return null;
   }
   return (
-    <SafeAreaProvider>
+    <GlobalProvider>
       <Stack screenOptions={{ headerShown: false }} />
-    </SafeAreaProvider>
+    </GlobalProvider>
   );
 }

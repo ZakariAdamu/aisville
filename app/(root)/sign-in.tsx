@@ -1,6 +1,7 @@
 import { Image } from "expo-image";
 import React, { ReactElement } from "react";
 import {
+  Alert,
   Dimensions,
   ScrollView,
   Text,
@@ -11,10 +12,22 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import icons from "@/constants/icons";
 import images from "@/constants/images";
+import { login } from "@/lib/appwrite";
 
 const SignIn = (): ReactElement => {
   const screenHeight = Dimensions.get("window").height;
-  const handleLogin = () => {};
+  const handleLogin = async () => {
+    const result = await login();
+
+    if (result) {
+      console.log("Login result:", result);
+    } else {
+      Alert.alert(
+        "Login Failed",
+        "Unable to login with Google. Please try again.",
+      );
+    }
+  };
 
   return (
     <SafeAreaView className="mt-6 flex-1 bg-white">
