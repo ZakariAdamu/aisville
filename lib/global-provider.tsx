@@ -22,7 +22,6 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
   const {
     data: user,
     loading,
-    error,
     refetch,
   } = useAppwrite({
     fn: getCurrentUser,
