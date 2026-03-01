@@ -1,10 +1,12 @@
-import { useGlobalContext } from "@/lib/global-provider";
-import { Redirect, Slot } from "expo-router";
-import { ActivityIndicator } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { useGlobalContext } from '@/lib/global-provider';
+import { Redirect, Slot, usePathname } from 'expo-router';
+import { ActivityIndicator } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function AppLayout() {
   const { loading, isLoggedIn } = useGlobalContext();
+  const pathname = usePathname();
+  const isOnSignIn = pathname === '/sign-in';
 
   if (loading) {
     return (
@@ -13,7 +15,7 @@ export default function AppLayout() {
       </SafeAreaView>
     );
   }
-  if (!isLoggedIn) {
+  if (!isLoggedIn && !isOnSignIn) {
     return <Redirect href="/sign-in" />;
   }
   return <Slot />;
