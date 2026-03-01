@@ -44,6 +44,8 @@ To learn more about developing your project with Expo, look at the following res
 
 ## Join the community
 
+[![React Native CI](https://github.com/ZakariAdamu/aisville/actions/workflows/ci.yml/badge.svg)](https://github.com/ZakariAdamu/aisville/actions/workflows/ci.yml)
+
 Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
