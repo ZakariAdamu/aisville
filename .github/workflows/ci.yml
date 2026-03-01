@@ -1,0 +1,35 @@
+name: React Native CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  quality-check:
+    name: Lint, Typecheck, Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Run ESLint (full project)
+        run: npm run lint
+
+      - name: 🧠 TypeScript check
+        run: npm run typecheck
+
+      - name: 🧪 Run tests with coverage
+        run: npm run test:ci
