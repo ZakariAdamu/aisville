@@ -1,5 +1,5 @@
-import { Alert } from "react-native";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Alert } from 'react-native';
 
 interface UseAppwriteOptions<T, P extends Record<string, string | number>> {
   fn: (params: P) => Promise<T>;
@@ -32,10 +32,9 @@ export const useAppwrite = <T, P extends Record<string, string | number>>({
         const result = await fn(fetchParams);
         setData(result);
       } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error ? err.message : "An unknown error occurred";
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         setError(errorMessage);
-        Alert.alert("Error", errorMessage);
+        Alert.alert('Error', errorMessage);
       } finally {
         setLoading(false);
       }
@@ -43,11 +42,26 @@ export const useAppwrite = <T, P extends Record<string, string | number>>({
     [fn],
   );
 
+  const paramsKey = useMemo(() => {
+    const sortedEntries = Object.entries(params).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
+
+    return JSON.stringify(sortedEntries);
+  }, [params]);
+
+  const stableParamsRef = useRef<{ key: string; value: P }>({
+    key: paramsKey,
+    value: params,
+  });
+
+  if (stableParamsRef.current.key !== paramsKey) {
+    stableParamsRef.current = { key: paramsKey, value: params };
+  }
+
   useEffect(() => {
     if (!skip) {
-      fetchData(params);
+      fetchData(stableParamsRef.current.value);
     }
-  }, []);
+  }, [fetchData, paramsKey, skip]);
 
   const refetch = async (newParams: P) => await fetchData(newParams);
 

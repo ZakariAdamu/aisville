@@ -1,6 +1,6 @@
+import { useGlobalContext } from '@/lib/global-provider';
 import { Link } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
-import { useGlobalContext } from '@/lib/global-provider';
 
 export default function Index() {
   const { isLoggedIn, user } = useGlobalContext();
