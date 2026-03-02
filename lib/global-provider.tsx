@@ -1,12 +1,12 @@
-import { createContext, useContext } from "react";
-import { getCurrentUser } from "./appwrite";
-import { useAppwrite } from "./useAppwrite";
+import { createContext, useContext } from 'react';
+import { getCurrentUser } from './appwrite';
+import { useAppwrite } from './useAppwrite';
 
 interface User {
   $id: string;
   name: string;
   email: string;
-  avatarUrl?: string;
+  avatar?: string;
 }
 
 interface GlobalContextType {
@@ -39,7 +39,7 @@ export const GlobalProvider = ({ children }: { children: React.ReactNode }) => {
 export const useGlobalContext = () => {
   const context = useContext(GlobalContext);
   if (!context) {
-    throw new Error("useGlobalContext must be used within a GlobalProvider");
+    throw new Error('useGlobalContext must be used within a GlobalProvider');
   }
   return context;
 };
