@@ -19,7 +19,7 @@ export const account = new Account(client);
 
 export async function login() {
   try {
-    const redirectUri = Linking.createURL('/');
+    const redirectUri = Linking.createURL('/explore');
 
     // ✅ Using the new object-style API for OAuth2
     const response = await account.createOAuth2Token({
