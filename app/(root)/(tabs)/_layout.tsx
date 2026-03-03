@@ -5,7 +5,7 @@ import { Text, View } from 'react-native';
 
 import icons from '@/constants/icons';
 
-const TabIcon = ({ focused, icon, title }: { focused: boolean; icon: any; title: string }) => {
+const TabIcon = ({ focused, icon, title }: { focused: boolean; icon: string; title: string }) => {
   return (
     <View className="mt-3 flex flex-1 flex-col items-center">
       <Image

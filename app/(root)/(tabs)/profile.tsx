@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SettingsItemProps {
   title: string;
-  icon: any;
+  icon: string;
   onPress?: () => void;
   textStyle?: string;
   showArrow?: boolean;
@@ -72,8 +72,8 @@ const Profile = () => {
           <SettingsItem title="Payments" icon={icons.wallet} onPress={() => {}} />
         </View>
         <View className="mt-5 flex flex-col border-t border-primary-200 pt-5">
-          {settings.slice(2).map((item, index) => (
-            <SettingsItem key={index} {...item} />
+          {settings.slice(2).map((item) => (
+            <SettingsItem key={item.title} {...item} />
           ))}
         </View>
 
