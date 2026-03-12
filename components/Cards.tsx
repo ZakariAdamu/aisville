@@ -52,7 +52,7 @@ export const Cards = ({ onPress }: Props) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="mb-2 mt-4 h-64 w-52 rounded-lg bg-white px-2 pb-3 pt-2"
+      className="mb-2 mt-4 h-64 w-44 rounded-lg bg-white px-2 pb-3 pt-2"
       style={cardShadowStyle}
     >
       <View className="relative w-full" style={{ height: '60%' }}>
