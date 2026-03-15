@@ -3,8 +3,10 @@ import images from '@/constants/images';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
+import { Models } from 'react-native-appwrite';
 
 interface Props {
+  item: Models.Document | any;
   onPress?: () => void;
 }
 
@@ -16,10 +18,16 @@ const cardShadowStyle = {
   elevation: 4,
 };
 
-export const FeaturedCards = ({ onPress }: Props) => {
+export const FeaturedCards = ({
+  item: { image, rating, name, address, price },
+  onPress,
+}: Props) => {
   return (
     <TouchableOpacity onPress={onPress} className="relative flex h-80 w-60 flex-col items-start">
-      <Image source={images.japan} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+      <Image
+        source={{ uri: image || '' }}
+        style={{ width: '100%', height: '100%', borderRadius: 10 }}
+      />
       <Image
         source={images.cardGradient}
         style={{
@@ -32,15 +40,15 @@ export const FeaturedCards = ({ onPress }: Props) => {
       />
       <View className="absolute right-5 top-5 flex flex-row items-center rounded-full bg-white/90 px-2.5 py-1.5">
         <Image source={icons.star} style={{ width: 16, height: 16, borderRadius: 2 }} />
-        <Text className="ml-1 font-rubik-bold text-xs text-primary-300">4.4</Text>
+        <Text className="ml-1 font-rubik-bold text-xs text-primary-300">{rating}</Text>
       </View>
       <View className="absolute inset-x-5 bottom-5 flex flex-col items-start">
         <Text className="font-rubik-extra-bold text-xl text-white" numberOfLines={1}>
-          Modern Apartment
+          {name}
         </Text>
-        <Text className="font-rubik-regular text-sm text-white">22 Sadam Avenue, Tokyo</Text>
+        <Text className="font-rubik-regular text-sm text-white">{address}</Text>
         <View className="flex w-full flex-row items-center justify-between">
-          <Text className="font-rubik-extra-bold text-xl text-white">$2,500</Text>
+          <Text className="font-rubik-extra-bold text-xl text-white">${price}</Text>
           <Image source={icons.heart} style={{ width: 20, height: 20 }} contentFit="contain" />
         </View>
       </View>
@@ -48,7 +56,7 @@ export const FeaturedCards = ({ onPress }: Props) => {
   );
 };
 
-export const Cards = ({ onPress }: Props) => {
+export const Cards = ({ item: { image, rating, name, address, price }, onPress }: Props) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -56,22 +64,19 @@ export const Cards = ({ onPress }: Props) => {
       style={cardShadowStyle}
     >
       <View className="relative w-full" style={{ height: '60%' }}>
-        <Image
-          source={images.newYork}
-          style={{ width: '100%', height: '100%', borderRadius: 10 }}
-        />
+        <Image source={image} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
         <View className="absolute right-3 top-1.5 flex flex-row items-center rounded-full bg-white/90 px-2.5 py-1.5">
           <Image source={icons.star} style={{ width: 10, height: 10, borderRadius: 2 }} />
-          <Text className="ml-1 font-rubik-bold text-xs text-primary-300">4.4</Text>
+          <Text className="ml-1 font-rubik-bold text-xs text-primary-300">{rating}</Text>
         </View>
       </View>
       <View className="mt-2 flex-1 px-1">
         <Text className="font-rubik-bold text-base text-black-300" numberOfLines={1}>
-          Cozy Studio
+          {name}
         </Text>
-        <Text className="font-rubik-regular text-xs text-black-200">22 Sadam Avenue, Tokyo</Text>
+        <Text className="font-rubik-regular text-xs text-black-200">{address}</Text>
         <View className="mt-2 flex w-full flex-row items-center justify-between">
-          <Text className="font-rubik-bold text-base text-primary-300">$2,500</Text>
+          <Text className="font-rubik-bold text-base text-primary-300">${price}</Text>
           <Image
             source={icons.heart}
             style={{ width: 20, height: 20, tintColor: '#191D31' }}
