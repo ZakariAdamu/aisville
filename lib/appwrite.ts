@@ -1,6 +1,6 @@
 import * as Linking from 'expo-linking';
 import { openAuthSessionAsync } from 'expo-web-browser';
-import { Account, Avatars, Client, Databases, OAuthProvider } from 'react-native-appwrite';
+import { Account, Avatars, Client, Databases, OAuthProvider, Query } from 'react-native-appwrite';
 
 export const config = {
   platform: 'com.aishub.aisville',
@@ -102,6 +102,87 @@ export async function getCurrentUser() {
 
     console.error('Get current user error:', error);
     return null;
+  }
+}
+
+const normalizePropertyType = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === 'all') return 'all';
+  if (normalized === 'condos') return 'condo';
+  if (normalized === 'duplexes') return 'duplex';
+  if (normalized === 'studios') return 'studio';
+  if (normalized === 'apartments') return 'apartment';
+  if (normalized === 'townhomes') return 'townhouse';
+  if (normalized === 'others') return 'other';
+
+  return normalized;
+};
+
+export async function getLatestProperties({ limit = 4 }: { limit?: number } = {}) {
+  try {
+    const queries = [Query.orderDesc('$createdAt')];
+
+    if (limit > 0) {
+      queries.push(Query.limit(limit));
+    }
+
+    const response = await databases.listDocuments({
+      databaseId: config.databaseId!,
+      collectionId: config.propertiesTableId!,
+      queries,
+    });
+
+    return response.documents;
+  } catch (error) {
+    console.error('Error fetching latest properties:', error);
+    return [];
+  }
+}
+
+export async function getProperties({
+  filter,
+  query,
+  limit,
+}: {
+  filter?: string;
+  query?: string;
+  limit?: number;
+}) {
+  try {
+    const queries = [Query.orderDesc('$createdAt')];
+    const normalizedFilter = normalizePropertyType(filter ?? 'all');
+    const normalizedQuery = (query ?? '').trim();
+
+    if (normalizedFilter !== 'all') {
+      const formattedType = normalizedFilter.charAt(0).toUpperCase() + normalizedFilter.slice(1);
+      queries.push(Query.equal('type', formattedType));
+    }
+
+    if (normalizedQuery.length > 0) {
+      queries.push(
+        Query.or([
+          Query.search('name', normalizedQuery),
+          Query.search('address', normalizedQuery),
+          Query.search('type', normalizedQuery),
+        ]),
+      );
+    }
+
+    if (limit && limit > 0) {
+      queries.push(Query.limit(limit));
+    }
+
+    const response = await databases.listDocuments({
+      databaseId: config.databaseId!,
+      collectionId: config.propertiesTableId!,
+      queries,
+    });
+
+    return response.documents;
+  } catch (error) {
+    console.error('Error fetching properties:', error);
+    return [];
   }
 }
 
