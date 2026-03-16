@@ -22,6 +22,7 @@ const propertyTypes = [
 
 const facilities = ['laundry', 'parking', 'gym', 'wifi', 'pet-friendly', 'swimming-pool'];
 
+<<<<<<< feat/setup-home-screen
 const propertyNames = [
   'Maple Grove Retreat',
   'Sunset Ridge House',
@@ -45,6 +46,8 @@ const propertyNames = [
   'Sapphire Hill Retreat',
 ];
 
+=======
+>>>>>>> staging
 function getRandomSubset<T>(array: T[], minItems: number, maxItems: number): T[] {
   if (minItems > maxItems) {
     throw new Error('minItems cannot be greater than maxItems');
@@ -143,7 +146,10 @@ async function seed() {
     // Seed Properties
     for (let i = 1; i <= 20; i++) {
       const assignedAgent = agents[Math.floor(Math.random() * agents.length)];
+<<<<<<< feat/setup-home-screen
       const propertyName = propertyNames[i - 1] ?? `Unique Property ${i}`;
+=======
+>>>>>>> staging
 
       const assignedReviews = getRandomSubset(reviews, 5, 7); // 5 to 7 reviews
       const assignedGalleries = getRandomSubset(galleries, 3, 8); // 3 to 8 galleries
@@ -162,10 +168,17 @@ async function seed() {
         collectionId: COLLECTIONS.PROPERTY!,
         documentId: ID.unique(),
         data: {
+<<<<<<< feat/setup-home-screen
           name: propertyName,
           type: propertyTypes[Math.floor(Math.random() * propertyTypes.length)],
           description: `This is the description for ${propertyName}.`,
           address: `${100 + i} ${propertyName} Avenue, City ${i}`,
+=======
+          name: `Property ${i}`,
+          type: propertyTypes[Math.floor(Math.random() * propertyTypes.length)],
+          description: `This is the description for Property ${i}.`,
+          address: `123 Property Street, City ${i}`,
+>>>>>>> staging
           geolocation: `192.168.1.${i}, 192.168.1.${i}`,
           price: Math.floor(Math.random() * 9000) + 1000,
           area: Math.floor(Math.random() * 3000) + 500,

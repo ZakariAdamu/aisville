@@ -3,6 +3,7 @@ import Filters from '@/components/Filters';
 import Search from '@/components/Search';
 import icons from '@/constants/icons';
 import images from '@/constants/images';
+<<<<<<< feat/setup-home-screen
 import { getLatestProperties, getProperties } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useAppwrite } from '@/lib/useAppwrite';
@@ -95,10 +96,28 @@ export default function Index() {
         data={recommendationList as PropertyItem[]}
         renderItem={({ item }) => <Cards item={item} onPress={() => handleCardPress(item.$id)} />}
         keyExtractor={(item) => item.$id}
+=======
+import { useGlobalContext } from '@/lib/global-provider';
+import seed from '@/lib/seed';
+import { Image } from 'expo-image';
+import { Button, FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+
+export default function Index() {
+  const { user } = useGlobalContext();
+  return (
+    <SafeAreaView className="h-full bg-white">
+      <Button title="Seed" onPress={seed} />
+      <FlatList
+        data={[1, 2, 3, 4]}
+        renderItem={({ item }) => <Cards />}
+        keyExtractor={(item, index) => index.toString()}
+>>>>>>> staging
         numColumns={2}
         contentContainerClassName="pb-32"
         columnWrapperClassName="flex gap-5 px-5"
         showsVerticalScrollIndicator={false}
+<<<<<<< feat/setup-home-screen
         ListEmptyComponent={
           loadingProperties ? (
             <RecommendationSkeleton />
@@ -106,6 +125,8 @@ export default function Index() {
             <EmptyState title="No recommendation found for your current filter/search." />
           )
         }
+=======
+>>>>>>> staging
         ListHeaderComponent={
           <View className="px-5">
             <View className="mt-5 flex flex-row items-center justify-between">
@@ -128,6 +149,7 @@ export default function Index() {
               <Image source={icons.bell} style={{ width: 24, height: 24 }} contentFit="contain" />
             </View>
 
+<<<<<<< feat/setup-home-screen
             <Search
               query={queryValue}
               onFilterPress={toggleFilters}
@@ -170,6 +192,35 @@ export default function Index() {
               </TouchableOpacity>
             </View>
             {showFilters ? <Filters /> : null}
+=======
+            <Search />
+            <View className="my-5">
+              <View className="flex flex-row items-center justify-between">
+                <Text className="font-rubik-bold text-xl text-black-300">Featured</Text>
+                <TouchableOpacity>
+                  <Text className="font-rubik-bold text-base text-primary-300">See all</Text>
+                </TouchableOpacity>
+              </View>
+              {/* Featured Cards */}
+              <FlatList
+                data={[1, 2, 3, 4]}
+                renderItem={({ item }) => <FeaturedCards />}
+                keyExtractor={(item) => item.toString()}
+                horizontal
+                bounces={false}
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="flex gap-5 mt-5"
+              ></FlatList>
+            </View>
+
+            <View className="flex flex-row items-center justify-between">
+              <Text className="font-rubik-bold text-xl text-black-300">Our Recommendation</Text>
+              <TouchableOpacity>
+                <Text className="font-rubik-bold text-base text-primary-300">See all</Text>
+              </TouchableOpacity>
+            </View>
+            <Filters />
+>>>>>>> staging
           </View>
         }
       ></FlatList>
