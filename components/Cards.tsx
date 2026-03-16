@@ -3,10 +3,18 @@ import images from '@/constants/images';
 import { Image } from 'expo-image';
 import React from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Models } from 'react-native-appwrite';
+
+interface PropertyItem {
+  $id: string;
+  name?: string;
+  address?: string;
+  price?: number;
+  rating?: number;
+  image?: string;
+}
 
 interface Props {
-  item: Models.Document | any;
+  item?: PropertyItem;
   onPress?: () => void;
 }
 
@@ -18,14 +26,16 @@ const cardShadowStyle = {
   elevation: 4,
 };
 
-export const FeaturedCards = ({
-  item: { image, rating, name, address, price },
-  onPress,
-}: Props) => {
+export const FeaturedCards = ({ item, onPress }: Props) => {
+  const name = item?.name ?? 'Modern Apartment';
+  const address = item?.address ?? '22 Sadam Avenue, Tokyo';
+  const rating = item?.rating ?? 4.4;
+  const price = item?.price ?? 2500;
+
   return (
     <TouchableOpacity onPress={onPress} className="relative flex h-80 w-60 flex-col items-start">
       <Image
-        source={{ uri: image || '' }}
+        source={item?.image ? { uri: item.image } : images.japan}
         style={{ width: '100%', height: '100%', borderRadius: 10 }}
       />
       <Image
@@ -40,7 +50,7 @@ export const FeaturedCards = ({
       />
       <View className="absolute right-5 top-5 flex flex-row items-center rounded-full bg-white/90 px-2.5 py-1.5">
         <Image source={icons.star} style={{ width: 16, height: 16, borderRadius: 2 }} />
-        <Text className="ml-1 font-rubik-bold text-xs text-primary-300">{rating}</Text>
+        <Text className="ml-1 font-rubik-bold text-xs text-primary-300">{rating.toFixed(1)}</Text>
       </View>
       <View className="absolute inset-x-5 bottom-5 flex flex-col items-start">
         <Text className="font-rubik-extra-bold text-xl text-white" numberOfLines={1}>
@@ -48,7 +58,9 @@ export const FeaturedCards = ({
         </Text>
         <Text className="font-rubik-regular text-sm text-white">{address}</Text>
         <View className="flex w-full flex-row items-center justify-between">
-          <Text className="font-rubik-extra-bold text-xl text-white">${price}</Text>
+          <Text className="font-rubik-extra-bold text-xl text-white">
+            ${price.toLocaleString()}
+          </Text>
           <Image source={icons.heart} style={{ width: 20, height: 20 }} contentFit="contain" />
         </View>
       </View>
@@ -56,7 +68,12 @@ export const FeaturedCards = ({
   );
 };
 
-export const Cards = ({ item: { image, rating, name, address, price }, onPress }: Props) => {
+export const Cards = ({ item, onPress }: Props) => {
+  const name = item?.name ?? 'Cozy Studio';
+  const address = item?.address ?? '22 Sadam Avenue, Tokyo';
+  const rating = item?.rating ?? 4.4;
+  const price = item?.price ?? 2500;
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -64,10 +81,13 @@ export const Cards = ({ item: { image, rating, name, address, price }, onPress }
       style={cardShadowStyle}
     >
       <View className="relative w-full" style={{ height: '60%' }}>
-        <Image source={image} style={{ width: '100%', height: '100%', borderRadius: 10 }} />
+        <Image
+          source={item?.image ? { uri: item.image } : images.newYork}
+          style={{ width: '100%', height: '100%', borderRadius: 10 }}
+        />
         <View className="absolute right-3 top-1.5 flex flex-row items-center rounded-full bg-white/90 px-2.5 py-1.5">
           <Image source={icons.star} style={{ width: 10, height: 10, borderRadius: 2 }} />
-          <Text className="ml-1 font-rubik-bold text-xs text-primary-300">{rating}</Text>
+          <Text className="ml-1 font-rubik-bold text-xs text-primary-300">{rating.toFixed(1)}</Text>
         </View>
       </View>
       <View className="mt-2 flex-1 px-1">
@@ -76,7 +96,9 @@ export const Cards = ({ item: { image, rating, name, address, price }, onPress }
         </Text>
         <Text className="font-rubik-regular text-xs text-black-200">{address}</Text>
         <View className="mt-2 flex w-full flex-row items-center justify-between">
-          <Text className="font-rubik-bold text-base text-primary-300">${price}</Text>
+          <Text className="font-rubik-bold text-base text-primary-300">
+            ${price.toLocaleString()}
+          </Text>
           <Image
             source={icons.heart}
             style={{ width: 20, height: 20, tintColor: '#191D31' }}

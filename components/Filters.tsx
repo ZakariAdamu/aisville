@@ -5,13 +5,12 @@ import { ScrollView, Text, TouchableOpacity } from 'react-native';
 
 const Filters = () => {
   const params = useLocalSearchParams<{ filter?: string }>();
-  const selectedCategory = useMemo(() => (params.filter ?? 'all').toString(), [params.filter]);
+  const selectedCategory = useMemo(() => (params.filter ?? 'All').toString(), [params.filter]);
 
   const handleCategoryPress = (category: string) => {
-    const normalizedCategory = category.toLowerCase();
-    const newCategory = selectedCategory.toLowerCase() === normalizedCategory ? 'all' : category;
-
-    router.setParams({ filter: newCategory === 'all' ? undefined : newCategory });
+    const newCategory =
+      selectedCategory.toLowerCase() === category.toLowerCase() ? 'All' : category;
+    router.setParams({ filter: newCategory === 'All' ? undefined : newCategory });
   };
 
   return (

@@ -105,12 +105,32 @@ export async function getCurrentUser() {
   }
 }
 
-export async function getLatestProperties() {
+const normalizePropertyType = (value: string) => {
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized === 'all') return 'all';
+  if (normalized === 'condos') return 'condo';
+  if (normalized === 'duplexes') return 'duplex';
+  if (normalized === 'studios') return 'studio';
+  if (normalized === 'apartments') return 'apartment';
+  if (normalized === 'townhomes') return 'townhouse';
+  if (normalized === 'others') return 'other';
+
+  return normalized;
+};
+
+export async function getLatestProperties({ limit = 4 }: { limit?: number } = {}) {
   try {
+    const queries = [Query.orderDesc('$createdAt')];
+
+    if (limit > 0) {
+      queries.push(Query.limit(limit));
+    }
+
     const response = await databases.listDocuments({
       databaseId: config.databaseId!,
       collectionId: config.propertiesTableId!,
-      queries: [Query.orderAsc('$createdAt'), Query.limit(5)],
+      queries,
     });
 
     return response.documents;
@@ -125,33 +145,38 @@ export async function getProperties({
   query,
   limit,
 }: {
-  filter: string;
-  query: string;
+  filter?: string;
+  query?: string;
   limit?: number;
 }) {
   try {
-    const buildQuery = [Query.orderDesc('$createdAt')];
+    const queries = [Query.orderDesc('$createdAt')];
+    const normalizedFilter = normalizePropertyType(filter ?? 'all');
+    const normalizedQuery = (query ?? '').trim();
 
-    if (filter && filter !== 'all') {
-      buildQuery.push(Query.equal('type', filter));
+    if (normalizedFilter !== 'all') {
+      const formattedType = normalizedFilter.charAt(0).toUpperCase() + normalizedFilter.slice(1);
+      queries.push(Query.equal('type', formattedType));
     }
-    if (query) {
-      buildQuery.push(
+
+    if (normalizedQuery.length > 0) {
+      queries.push(
         Query.or([
-          Query.search('name', query),
-          Query.search('address', query),
-          Query.search('type', query),
+          Query.search('name', normalizedQuery),
+          Query.search('address', normalizedQuery),
+          Query.search('type', normalizedQuery),
         ]),
       );
     }
-    if (limit) {
-      buildQuery.push(Query.limit(limit));
+
+    if (limit && limit > 0) {
+      queries.push(Query.limit(limit));
     }
 
     const response = await databases.listDocuments({
       databaseId: config.databaseId!,
       collectionId: config.propertiesTableId!,
-      queries: buildQuery,
+      queries,
     });
 
     return response.documents;
