@@ -18,6 +18,24 @@ interface Props {
   onPress?: () => void;
 }
 
+const getImageSource = (
+  value: string | undefined,
+  fallback: string | number,
+): { uri: string } | string | number => {
+  const normalizedValue = value?.trim();
+
+  if (!normalizedValue) {
+    return fallback;
+  }
+
+  // Only use network sources for absolute http/https URLs.
+  if (/^https?:\/\//i.test(normalizedValue)) {
+    return { uri: normalizedValue };
+  }
+
+  return fallback;
+};
+
 const cardShadowStyle = {
   shadowColor: '#000',
   shadowOffset: { width: 0, height: 6 },
@@ -35,8 +53,9 @@ export const FeaturedCards = ({ item, onPress }: Props) => {
   return (
     <TouchableOpacity onPress={onPress} className="relative flex h-80 w-60 flex-col items-start">
       <Image
-        source={item?.image ? { uri: item.image } : images.japan}
+        source={getImageSource(item?.image, images.japan)}
         style={{ width: '100%', height: '100%', borderRadius: 10 }}
+        contentFit="cover"
       />
       <Image
         source={images.cardGradient}
@@ -82,8 +101,9 @@ export const Cards = ({ item, onPress }: Props) => {
     >
       <View className="relative w-full" style={{ height: '60%' }}>
         <Image
-          source={item?.image ? { uri: item.image } : images.newYork}
+          source={getImageSource(item?.image, images.newYork)}
           style={{ width: '100%', height: '100%', borderRadius: 10 }}
+          contentFit="cover"
         />
         <View className="absolute right-3 top-1.5 flex flex-row items-center rounded-full bg-white/90 px-2.5 py-1.5">
           <Image source={icons.star} style={{ width: 10, height: 10, borderRadius: 2 }} />
