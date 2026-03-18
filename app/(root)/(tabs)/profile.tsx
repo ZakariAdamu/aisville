@@ -1,5 +1,6 @@
 import { settings } from '@/constants/data';
 import icons from '@/constants/icons';
+import images from '@/constants/images';
 import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { Image } from 'expo-image';
@@ -53,8 +54,9 @@ const Profile = () => {
             <Image
               source={{
                 uri:
-                  user?.avatar ||
-                  'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png',
+                  user?.avatar || user?.name
+                    ? `https://ui-avatars.com/api/?name=${user.name}&background=random`
+                    : images.avatar,
               }}
               style={{ width: 80, height: 80, borderRadius: 40, position: 'relative' }}
               contentFit="contain"

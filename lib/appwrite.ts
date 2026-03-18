@@ -186,4 +186,80 @@ export async function getProperties({
   }
 }
 
+export async function getPropertyById(id: string) {
+  try {
+    const response = await databases.getDocument({
+      databaseId: config.databaseId!,
+      collectionId: config.propertiesTableId!,
+      documentId: id,
+    });
+    const responseRecord = response as Record<string, unknown>;
+
+    const getRelationshipId = (value: unknown): string | null => {
+      if (typeof value === 'string') return value;
+
+      if (value && typeof value === 'object' && '$id' in value) {
+        const relatedId = (value as { $id?: unknown }).$id;
+        return typeof relatedId === 'string' ? relatedId : null;
+      }
+
+      return null;
+    };
+
+    const getRelationshipIds = (value: unknown): string[] => {
+      if (!Array.isArray(value)) return [];
+
+      return value
+        .map((item: unknown) => getRelationshipId(item))
+        .filter(
+          (relationshipId: string | null): relationshipId is string => relationshipId !== null,
+        );
+    };
+
+    const fetchDocumentsByIds = async (collectionId: string, ids: string[]) => {
+      const fetchedItems = await Promise.all(
+        ids.map((documentId: string) =>
+          databases
+            .getDocument({
+              databaseId: config.databaseId!,
+              collectionId,
+              documentId,
+            })
+            .catch(() => null),
+        ),
+      );
+
+      return fetchedItems.filter((item) => item !== null);
+    };
+
+    const agentId = getRelationshipId(responseRecord.agent);
+    const reviewIds = getRelationshipIds(responseRecord.reviews);
+    const galleryIds = getRelationshipIds(responseRecord.gallery);
+
+    const [agent, reviews, gallery] = await Promise.all([
+      agentId
+        ? databases
+            .getDocument({
+              databaseId: config.databaseId!,
+              collectionId: config.agentsTableId!,
+              documentId: agentId,
+            })
+            .catch(() => null)
+        : Promise.resolve(null),
+      fetchDocumentsByIds(config.reviewsTableId!, reviewIds),
+      fetchDocumentsByIds(config.galleriesTableId!, galleryIds),
+    ]);
+
+    return {
+      ...response,
+      agent: agent ?? responseRecord.agent ?? null,
+      reviews: reviews.length > 0 ? reviews : (responseRecord.reviews ?? []),
+      gallery: gallery.length > 0 ? gallery : (responseRecord.gallery ?? []),
+    };
+  } catch (error) {
+    console.error(`Error fetching property with ID ${id}:`, error);
+    return null;
+  }
+}
+
 export default client;

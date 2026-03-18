@@ -45,6 +45,83 @@ const propertyNames = [
   'Sapphire Hill Retreat',
 ];
 
+const propertyDescriptions = [
+  'A serene family home with airy living spaces, mature trees, and a peaceful street ideal for evening walks.',
+  'A bright, modern residence with open-plan interiors, premium finishes, and quick access to key city routes.',
+  'A practical duplex designed for comfort, offering spacious bedrooms and a cozy private outdoor corner.',
+  'An elegant villa with generous natural light, stylish detailing, and a calm environment for relaxed living.',
+  'A warm townhouse featuring smart storage, balanced room proportions, and easy access to nearby essentials.',
+  'A contemporary apartment that blends comfort and convenience with a clean layout and welcoming atmosphere.',
+  'A polished condo with tasteful interiors, strong security, and a layout that suits both individuals and couples.',
+  'A compact studio optimized for modern city life, complete with efficient space planning and inviting finishes.',
+  'A refined residence with standout curb appeal, flexible living areas, and a neighborhood known for tranquility.',
+  'A charming home near daily conveniences, offering practical room flow and dependable amenities year-round.',
+  'A well-kept duplex with family-friendly proportions, quiet surroundings, and a layout built for daily ease.',
+  'A spacious estate-style property with elegant touches, broad living zones, and strong long-term comfort value.',
+  'A centrally placed apartment with neat finishes, excellent ventilation, and smooth access to public transport.',
+  'A distinctive home with character, privacy, and a balanced mix of style and functional design throughout.',
+  'A premium villa with tasteful architecture, bright interiors, and a calm residential atmosphere.',
+  'A comfortable house with practical design choices, solid utility access, and generous living flexibility.',
+  'A stylish townhouse that feels both cozy and modern, with quality detailing across key living spaces.',
+  'A clean, modern condo with efficient room planning and a pleasant setting ideal for everyday routines.',
+  'A loft-inspired space with open visual flow, urban convenience, and a layout suited to modern lifestyles.',
+  'A peaceful retreat with great indoor-outdoor balance, quality fittings, and a welcoming neighborhood feel.',
+];
+
+const agentProfiles = [
+  { name: 'Amara Okafor', email: 'amara.okafor@aisville.com' },
+  { name: 'Daniel Mensah', email: 'daniel.mensah@aisville.com' },
+  { name: 'Laila Hassan', email: 'laila.hassan@aisville.com' },
+  { name: 'Tunde Adeyemi', email: 'tunde.adeyemi@aisville.com' },
+  { name: 'Nadia Suleiman', email: 'nadia.suleiman@aisville.com' },
+];
+
+const reviewerNames = [
+  'Amina Yusuf',
+  'Chinedu Okoye',
+  'Fatima Bello',
+  'Kelvin Asante',
+  'Mariam Abubakar',
+  'Samuel Nkrumah',
+  'Zainab Idris',
+  'Ibrahim Lawal',
+  'Nora Adjei',
+  'Oluwatobi Afolabi',
+  'Hauwa Musa',
+  'David Boateng',
+  'Ruth Eze',
+  'Kofi Owusu',
+  'Grace Nwosu',
+  'Yusuf Abdullahi',
+  'Abena Quartey',
+  'Bashir Garba',
+  'Efe Ighalo',
+  'Lydia Appiah',
+];
+
+const reviewTexts = [
+  'Great location and very quiet neighborhood. The process was smooth from viewing to move-in.',
+  'The apartment matched the listing photos exactly. Clean finishes and responsive agent support.',
+  'Spacious rooms and good natural light. I especially liked the secure parking area.',
+  'Nice property overall, and the nearby shops made daily errands easy.',
+  'Well-maintained building with reliable water and power. Would definitely recommend.',
+  'Loved the layout and ventilation. The host and agent communicated clearly throughout.',
+  'Good value for the price. The environment felt safe even late in the evening.',
+  'The facilities were in good condition and the neighborhood was family-friendly.',
+  'Smooth inspection and paperwork. Everything promised in the listing was available.',
+  'Very comfortable home with modern fittings. Internet and utilities were stable.',
+  'Excellent for remote work, quiet surroundings and plenty of space.',
+  'The location is central and commute time is short. Overall a pleasant experience.',
+  'Beautiful interior and tidy compound. Agent was punctual for every appointment.',
+  'I appreciated the security and cleanliness. The property is worth considering.',
+  'Bright rooms, good finishing, and easy access roads. I had no major issues.',
+  'Everything felt organized and professional. The check-in experience was hassle-free.',
+  'The gallery was accurate and the unit looked even better in person.',
+  'Great ambiance and very practical layout. Good option for small families.',
+  'Quiet compound, clean water supply, and helpful management team.',
+  'A solid choice if you want comfort and convenience in one place.',
+];
+
 function getRandomSubset<T>(array: T[], minItems: number, maxItems: number): T[] {
   if (minItems > maxItems) {
     throw new Error('minItems cannot be greater than maxItems');
@@ -94,13 +171,14 @@ async function seed() {
     // Seed Agents
     const agents = [];
     for (let i = 1; i <= 5; i++) {
+      const profile = agentProfiles[i - 1];
       const agent = await databases.createDocument({
         databaseId: config.databaseId!,
         collectionId: COLLECTIONS.AGENT!,
         documentId: ID.unique(),
         data: {
-          name: `Agent ${i}`,
-          email: `agent${i}@example.com`,
+          name: profile?.name ?? `Agent ${i}`,
+          email: profile?.email ?? `agent${i}@aisville.com`,
           avatar: agentImages[Math.floor(Math.random() * agentImages.length)],
         },
       });
@@ -111,14 +189,17 @@ async function seed() {
     // Seed Reviews
     const reviews = [];
     for (let i = 1; i <= 20; i++) {
+      const reviewerName = reviewerNames[i - 1] ?? `Reviewer ${i}`;
+      const reviewText = reviewTexts[i - 1] ?? 'Great property with a smooth rental experience.';
+
       const review = await databases.createDocument({
         databaseId: config.databaseId!,
         collectionId: COLLECTIONS.REVIEWS!,
         documentId: ID.unique(),
         data: {
-          name: `Reviewer ${i}`,
+          name: reviewerName,
           avatar: reviewImages[Math.floor(Math.random() * reviewImages.length)],
-          review: `This is a review by Reviewer ${i}.`,
+          review: reviewText,
           rating: Math.floor(Math.random() * 5) + 1, // Rating between 1 and 5
         },
       });
@@ -144,6 +225,9 @@ async function seed() {
     for (let i = 1; i <= 20; i++) {
       const assignedAgent = agents[Math.floor(Math.random() * agents.length)];
       const propertyName = propertyNames[i - 1] ?? `Unique Property ${i}`;
+      const propertyDescription =
+        propertyDescriptions[i - 1] ??
+        `${propertyName} offers a comfortable layout, reliable amenities, and a location that supports easy everyday living.`;
 
       const assignedReviews = getRandomSubset(reviews, 5, 7); // 5 to 7 reviews
       const assignedGalleries = getRandomSubset(galleries, 3, 8); // 3 to 8 galleries
@@ -164,7 +248,7 @@ async function seed() {
         data: {
           name: propertyName,
           type: propertyTypes[Math.floor(Math.random() * propertyTypes.length)],
-          description: `This is the description for ${propertyName}.`,
+          description: propertyDescription,
           address: `${100 + i} ${propertyName} Avenue, City ${i}`,
           geolocation: `192.168.1.${i}, 192.168.1.${i}`,
           price: Math.floor(Math.random() * 9000) + 1000,

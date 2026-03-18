@@ -8,13 +8,52 @@ import { useGlobalContext } from '@/lib/global-provider';
 import { useAppwrite } from '@/lib/useAppwrite';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Animated,
+  FlatList,
+  StyleProp,
+  Text,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface PropertyItem {
   $id: string;
 }
+
+interface PulseBlockProps {
+  style?: StyleProp<ViewStyle>;
+}
+
+const PulseBlock = ({ style }: PulseBlockProps) => {
+  const opacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    const pulse = Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.45,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 1,
+          duration: 700,
+          useNativeDriver: true,
+        }),
+      ]),
+    );
+
+    pulse.start();
+
+    return () => pulse.stop();
+  }, [opacity]);
+
+  return <Animated.View style={[{ backgroundColor: '#E8ECF2', opacity }, style]} />;
+};
 
 const FeaturedSkeleton = () => (
   <FlatList
@@ -24,7 +63,7 @@ const FeaturedSkeleton = () => (
     bounces={false}
     showsHorizontalScrollIndicator={false}
     contentContainerClassName="mt-5 flex gap-5"
-    renderItem={() => <View className="h-80 w-60 rounded-xl bg-primary-100" />}
+    renderItem={() => <PulseBlock style={{ height: 320, width: 240, borderRadius: 12 }} />}
   />
 );
 
@@ -32,7 +71,10 @@ const RecommendationSkeleton = () => (
   <View className="mt-4 px-5">
     <View className="flex flex-row flex-wrap justify-between">
       {[1, 2, 3, 4].map((item) => (
-        <View key={item} className="mb-4 h-64 w-44 rounded-lg bg-primary-100" />
+        <PulseBlock
+          key={item}
+          style={{ marginBottom: 16, height: 256, width: 176, borderRadius: 8 }}
+        />
       ))}
     </View>
   </View>
