@@ -68,6 +68,38 @@ const propertyDescriptions = [
   'A peaceful retreat with great indoor-outdoor balance, quality fittings, and a welcoming neighborhood feel.',
 ];
 
+const abujaLocations = [
+  { address: '1 Aguiyi Ironsi Street, Maitama, Abuja', geolocation: '9.0820, 7.5105' },
+  { address: 'Bala Sokoto Way, Jabi, Abuja', geolocation: '9.0861, 7.4319' },
+  {
+    address: 'Adetokunbo Ademola Crescent, Wuse 2, Abuja',
+    geolocation: '9.0786, 7.4898',
+  },
+  { address: 'Aminu Kano Crescent, Wuse 2, Abuja', geolocation: '9.0808, 7.4836' },
+  { address: 'Gana Street, Maitama, Abuja', geolocation: '9.0852, 7.5038' },
+  { address: 'Mississippi Street, Maitama, Abuja', geolocation: '9.0904, 7.4959' },
+  { address: 'Shehu Shagari Way, Central Area, Abuja', geolocation: '9.0469, 7.5014' },
+  {
+    address: 'Herbert Macaulay Way, Central Business District, Abuja',
+    geolocation: '9.0614, 7.4957',
+  },
+  { address: 'Independence Avenue, Central Area, Abuja', geolocation: '9.0437, 7.4899' },
+  { address: 'Olusegun Obasanjo Way, Wuse Zone 7, Abuja', geolocation: '9.0619, 7.4692' },
+  { address: 'Alex Ekwueme Way, Jabi, Abuja', geolocation: '9.0781, 7.4451' },
+  { address: 'Ladi Kwali Street, Wuse Zone 4, Abuja', geolocation: '9.0715, 7.4782' },
+  { address: 'Kashim Ibrahim Way, Wuse 2, Abuja', geolocation: '9.0837, 7.4852' },
+  { address: 'Muhammadu Buhari Way, Central Area, Abuja', geolocation: '9.0546, 7.5032' },
+  { address: 'Nnamdi Azikiwe Expressway, Garki, Abuja', geolocation: '9.0218, 7.4839' },
+  { address: 'Ahmadu Bello Way, Garki 2, Abuja', geolocation: '9.0396, 7.4988' },
+  { address: 'Moshood Abiola Way, Utako, Abuja', geolocation: '9.0679, 7.4456' },
+  {
+    address: 'Ademola Adetokunbo Crescent, Wuse 2, Abuja',
+    geolocation: '9.0779, 7.4915',
+  },
+  { address: 'Tafawa Balewa Way, Area 11, Garki, Abuja', geolocation: '9.0326, 7.4937' },
+  { address: 'Ahmadu Bello Way, Mabushi, Abuja', geolocation: '9.1041, 7.4407' },
+];
+
 const agentProfiles = [
   { name: 'Amara Okafor', email: 'amara.okafor@aisville.com' },
   { name: 'Daniel Mensah', email: 'daniel.mensah@aisville.com' },
@@ -228,6 +260,10 @@ async function seed() {
       const propertyDescription =
         propertyDescriptions[i - 1] ??
         `${propertyName} offers a comfortable layout, reliable amenities, and a location that supports easy everyday living.`;
+      const propertyLocation = abujaLocations[i - 1] ?? {
+        address: 'Adetokunbo Ademola Crescent, Wuse 2, Abuja',
+        geolocation: '9.0786, 7.4898',
+      };
 
       const assignedReviews = getRandomSubset(reviews, 5, 7); // 5 to 7 reviews
       const assignedGalleries = getRandomSubset(galleries, 3, 8); // 3 to 8 galleries
@@ -249,13 +285,14 @@ async function seed() {
           name: propertyName,
           type: propertyTypes[Math.floor(Math.random() * propertyTypes.length)],
           description: propertyDescription,
-          address: `${100 + i} ${propertyName} Avenue, City ${i}`,
-          geolocation: `192.168.1.${i}, 192.168.1.${i}`,
+          address: propertyLocation.address,
+          geolocation: propertyLocation.geolocation,
           price: Math.floor(Math.random() * 9000) + 1000,
           area: Math.floor(Math.random() * 3000) + 500,
           bedrooms: Math.floor(Math.random() * 5) + 1,
           bathrooms: Math.floor(Math.random() * 5) + 1,
           rating: Math.floor(Math.random() * 5) + 1,
+          favoritesCount: 0,
           facilities: selectedFacilities,
           image: image,
           agent: assignedAgent.$id,
