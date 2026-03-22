@@ -1,4 +1,3 @@
-import { settings } from '@/constants/data';
 import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { logout } from '@/lib/appwrite';
@@ -82,8 +81,9 @@ const Profile = () => {
 
         {/* settings item */}
         <View className="mt-10 flex flex-col">
-          <SettingsItem title="My Bookings" icon={icons.calendar} onPress={() => {}} />
-          <SettingsItem title="Payments" icon={icons.wallet} onPress={() => {}} />
+          {/* <SettingsItem title="My Bookings" icon={icons.calendar} onPress={() => {}} />
+          <SettingsItem title="Payments" icon={icons.wallet} onPress={() => { }} /> */}
+
           <SettingsItem
             title="Favorites"
             icon={icons.heart}
@@ -91,11 +91,11 @@ const Profile = () => {
             onPress={() => router.push('/favorites')}
           />
         </View>
-        <View className="mt-5 flex flex-col border-t border-primary-200 pt-5">
+        {/* <View className="mt-5 flex flex-col border-t border-primary-200 pt-5">
           {settings.slice(2).map((item) => (
             <SettingsItem key={item.title} {...item} />
           ))}
-        </View>
+        </View> */}
 
         <View className="mt-5 flex flex-col border-t border-primary-200 pt-5">
           <SettingsItem
