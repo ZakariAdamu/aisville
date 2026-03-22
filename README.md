@@ -1,50 +1,128 @@
-# Welcome👋 to Ais City. A Scalable Real Estate Mobile Application built in React Native!
+# 🏡 Aisville – Real Estate Mobile Application
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A modern, mobile-first real estate platform built with **React Native**, enabling users to discover properties, schedule inspections, and manage bookings seamlessly.
 
-## Get started
+---
 
-1. Install dependencies
+## 📱 Overview
 
-   ```bash
-   npm install
-   ```
+Aisville is designed to simplify the property discovery and inspection process by providing a streamlined user experience for browsing listings, saving favorites, and booking property inspections.
 
-2. Start the app
+The application focuses on **performance, usability, and scalable backend integration**, making it suitable for real-world real estate workflows.
 
-   ```bash
-   npx expo start
-   ```
+---
 
-In the output, you'll find options to open the app in a
+## ✨ Key Features
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 🔍 Property Discovery
+- Browse curated real estate listings  
+- View detailed property information and images  
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### 📅 Book Inspection
+- Schedule property visits directly from the app  
+- Persistent booking system integrated with backend  
 
-## Get a fresh project
+### ❤️ Favorites System
+- Save and manage preferred properties  
+- Optimized toggle logic with backend sync  
 
-When you're ready, run:
+### 👤 Authentication
+- Secure user authentication (OAuth / Appwrite)  
+
+### 📊 User Dashboard (My Bookings)
+- View and manage all scheduled inspections  
+- Real-time data synchronization  
+
+---
+
+## 🧠 Architecture & Design Decisions
+
+### 📱 Mobile Architecture
+- Built with **React Native** for cross-platform performance  
+- Component-driven structure for scalability and reuse  
+
+### ⚙️ Backend
+- Powered by **Appwrite**
+  - Authentication  
+  - Database (bookings, favorites, properties)  
+  - API-driven architecture  
+
+### 🔄 State Management
+- Lightweight and modular state handling  
+- Optimized for async data fetching and UI responsiveness  
+
+---
+
+## ⚙️ Tech Stack
+
+- **Frontend:** React Native, Expo  
+- **Backend:** Appwrite  
+- **Language:** TypeScript / JavaScript  
+- **API Handling:** REST / SDK-based integration  
+- **Version Control:** Git + GitHub  
+
+---
+
+## 🚀 Getting Started
+
+### ✅ Prerequisites
+- Node.js  
+- Expo CLI (if applicable)  
+- Appwrite instance (local or cloud)  
+
+---
+
+## 🎥 Demo
+
+- 👉 Add your Loom / screen recording here  
+- 👉 Add APK or TestFlight link if available  
+
+---
+
+## 🧩 Challenges & Solutions
+
+### 1. Appwrite Document ID Constraints
+- **Challenge:** Invalid `documentId` errors due to strict format requirements  
+- **Solution:** Implemented sanitized ID generation and validation before writes  
+
+### 2. Real-Time Booking Sync
+- **Challenge:** Keeping booking data consistent across screens  
+- **Solution:** Centralized data fetching with optimized refresh logic  
+
+### 3. UX Flow for Booking
+Designed a frictionless flow:  
+**Property → Book Inspection → Confirmation → Bookings Feedback**
+
+---
+
+## 📈 Future Improvements
+
+- 💳 Payment integration (e.g., Paystack)  
+- 💬 Real-time chat (buyer ↔ agent)  
+- 🗺️ Map-based property discovery  
+- 🔔 Push notifications for booking updates  
+
+---
+
+## 🧑‍💻 Author
+
+**Zakari Adamu**  
+Frontend / Mobile Engineer  
+
+- GitHub: https://github.com/ZakariAdamu  
+- LinkedIn: https://www.linkedin.com/in/zakari-adamu  
+
+---
+
+## 📄 License
+
+MIT License
+
+---
+
+### 📦 Installation
 
 ```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+git clone https://github.com/ZakariAdamu/aisville.git
+cd aisville
+npm install
