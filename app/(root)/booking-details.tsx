@@ -14,7 +14,8 @@ import {
 
 import icons from '@/constants/icons';
 import images from '@/constants/images';
-import { getPropertyById } from '@/lib/appwrite';
+import { getPropertyById, submitBooking, type BookingData } from '@/lib/appwrite';
+import { useGlobalContext } from '@/lib/global-provider';
 import { useAppwrite } from '@/lib/useAppwrite';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -125,6 +126,7 @@ const getDateOptions = (): DateOption[] => {
 
 export default function BookingDetails() {
   const { propertyId } = useLocalSearchParams<{ propertyId?: string }>();
+  const { user } = useGlobalContext();
 
   const { data: property, loading } = useAppwrite<PropertyDetails | null, { id: string }>({
     fn: ({ id }) => getPropertyById(id) as Promise<PropertyDetails | null>,
@@ -246,13 +248,41 @@ export default function BookingDetails() {
     await Linking.openURL(calendarUrl);
   };
 
-  const handleConfirmInspection = () => {
+  const handleConfirmInspection = async () => {
     if (!canSubmit) {
       Alert.alert('Incomplete details', 'Please complete required fields and accept the terms.');
       return;
     }
 
-    setIsConfirmed(true);
+    if (!user?.$id || !propertyId || !selectedDate || !selectedSlot) {
+      Alert.alert('Error', 'Missing required booking information.');
+      return;
+    }
+
+    try {
+      const bookingData: BookingData = {
+        userId: user?.email || '',
+        propertyId,
+        inspectionDate: selectedDate.date.toISOString().split('T')[0],
+        inspectionTime: selectedSlot.label,
+        inspectionType,
+        fullName,
+        phone,
+        email,
+        attendees: Number(attendees),
+        contactMethod,
+        interestType: interestType || undefined,
+        budgetRange: budgetRange || undefined,
+        notes: notes || undefined,
+        status: 'confirmed' as const,
+      };
+
+      await submitBooking(bookingData);
+      setIsConfirmed(true);
+    } catch (error) {
+      console.error('Booking submission error:', error);
+      Alert.alert('Booking Failed', 'Failed to submit your inspection booking. Please try again.');
+    }
   };
 
   if (loading) {

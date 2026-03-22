@@ -20,6 +20,7 @@ export const config = {
   agentsTableId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_TABLE_ID,
   propertiesTableId: process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_TABLE_ID,
   favoritesTableId: process.env.EXPO_PUBLIC_APPWRITE_FAVORITES_TABLE_ID,
+  bookingsTableId: process.env.EXPO_PUBLIC_APPWRITE_BOOKINGS_TABLE_ID,
 };
 
 export const client = new Client();
@@ -38,6 +39,23 @@ const FAVORITES_PROPERTY_FIELD = 'propertyId';
 interface ToggleFavoriteParams {
   userId: string;
   propertyId: string;
+}
+
+export interface BookingData {
+  userId: string;
+  propertyId: string;
+  inspectionDate: string;
+  inspectionTime: string;
+  inspectionType: string;
+  fullName: string;
+  phone: string;
+  email: string;
+  attendees: number;
+  contactMethod: string;
+  interestType?: string;
+  budgetRange?: string;
+  notes?: string;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
 }
 
 interface ToggleFavoriteResponse {
@@ -457,6 +475,49 @@ export async function getPropertyById(id: string) {
   } catch (error) {
     console.error(`Error fetching property with ID ${id}:`, error);
     return null;
+  }
+}
+
+export async function submitBooking(booking: BookingData) {
+  try {
+    if (!config.databaseId || !config.bookingsTableId) {
+      throw new Error('Bookings collection is not configured');
+    }
+
+    const result = await databases.createDocument({
+      databaseId: config.databaseId,
+      collectionId: config.bookingsTableId,
+      documentId: ID.unique(),
+      data: {
+        ...booking,
+        attendees: Number(booking.attendees),
+        createdAt: new Date().toISOString(),
+      },
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error submitting booking:', error);
+    throw error;
+  }
+}
+
+export async function getUserBookings(userId: string) {
+  try {
+    if (!config.databaseId || !config.bookingsTableId) {
+      throw new Error('Bookings collection is not configured');
+    }
+
+    const response = await databases.listDocuments({
+      databaseId: config.databaseId,
+      collectionId: config.bookingsTableId,
+      queries: [Query.equal('userId', userId), Query.orderDesc('inspectionDate')],
+    });
+
+    return response.documents as unknown as BookingData[];
+  } catch (error) {
+    console.error('Error fetching user bookings:', error);
+    return [];
   }
 }
 
