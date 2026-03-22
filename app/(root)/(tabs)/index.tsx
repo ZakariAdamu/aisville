@@ -68,16 +68,17 @@ const FeaturedSkeleton = () => (
 );
 
 const RecommendationSkeleton = () => (
-  <View className="mt-4 px-5">
-    <View className="flex flex-row flex-wrap justify-between">
-      {[1, 2, 3, 4].map((item) => (
-        <PulseBlock
-          key={item}
-          style={{ marginBottom: 16, height: 256, width: 176, borderRadius: 8 }}
-        />
-      ))}
-    </View>
-  </View>
+  <FlatList
+    data={[1, 2, 3, 4, 5, 6]}
+    keyExtractor={(item) => item.toString()}
+    numColumns={2}
+    scrollEnabled={false}
+    columnWrapperClassName="flex gap-5 px-5"
+    contentContainerClassName="mt-4"
+    renderItem={() => (
+      <PulseBlock style={{ marginBottom: 16, height: 256, width: '48%', borderRadius: 8 }} />
+    )}
+  />
 );
 
 const EmptyState = ({ title }: { title: string }) => (
@@ -135,7 +136,9 @@ export default function Index() {
     <SafeAreaView className="h-full bg-white">
       <FlatList
         data={recommendationList as PropertyItem[]}
-        renderItem={({ item }) => <Cards item={item} onPress={() => handleCardPress(item.$id)} />}
+        renderItem={({ item }) => (
+          <Cards item={item} onPress={() => handleCardPress(item.$id)} showFavorite={false} />
+        )}
         keyExtractor={(item) => item.$id}
         numColumns={2}
         contentContainerClassName="pb-32"
@@ -193,7 +196,11 @@ export default function Index() {
                 <FlatList
                   data={featuredList as PropertyItem[]}
                   renderItem={({ item }) => (
-                    <FeaturedCards item={item} onPress={() => handleCardPress(item.$id)} />
+                    <FeaturedCards
+                      item={item}
+                      onPress={() => handleCardPress(item.$id)}
+                      showFavorite={false}
+                    />
                   )}
                   keyExtractor={(item) => item.$id}
                   horizontal

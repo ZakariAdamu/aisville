@@ -1,6 +1,14 @@
 import * as Linking from 'expo-linking';
 import { openAuthSessionAsync } from 'expo-web-browser';
-import { Account, Avatars, Client, Databases, OAuthProvider, Query } from 'react-native-appwrite';
+import {
+  Account,
+  Avatars,
+  Client,
+  Databases,
+  ID,
+  OAuthProvider,
+  Query,
+} from 'react-native-appwrite';
 
 export const config = {
   platform: 'com.aishub.aisville',
@@ -11,6 +19,7 @@ export const config = {
   reviewsTableId: process.env.EXPO_PUBLIC_APPWRITE_REVIEWS_TABLE_ID,
   agentsTableId: process.env.EXPO_PUBLIC_APPWRITE_AGENTS_TABLE_ID,
   propertiesTableId: process.env.EXPO_PUBLIC_APPWRITE_PROPERTIES_TABLE_ID,
+  favoritesTableId: process.env.EXPO_PUBLIC_APPWRITE_FAVORITES_TABLE_ID,
 };
 
 export const client = new Client();
@@ -22,6 +31,195 @@ client.setEndpoint(config.endpoint).setProject(config.projectId).setPlatform(con
 export const avatar = new Avatars(client);
 export const account = new Account(client);
 export const databases = new Databases(client);
+
+const FAVORITES_USER_FIELD = 'userId';
+const FAVORITES_PROPERTY_FIELD = 'propertyId';
+
+interface ToggleFavoriteParams {
+  userId: string;
+  propertyId: string;
+}
+
+interface ToggleFavoriteResponse {
+  isFavorite: boolean;
+}
+
+const extractRelationshipId = (value: unknown): string | null => {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (value && typeof value === 'object' && '$id' in value) {
+    const relatedId = (value as { $id?: unknown }).$id;
+    return typeof relatedId === 'string' ? relatedId : null;
+  }
+
+  return null;
+};
+
+const isConflictError = (error: unknown) => {
+  if (!error || typeof error !== 'object') return false;
+
+  const withCode = error as { code?: unknown; status?: unknown; type?: unknown };
+
+  return (
+    withCode.code === 409 || withCode.status === 409 || withCode.type === 'document_already_exists'
+  );
+};
+
+async function updatePropertyFavoritesCount(propertyId: string, delta: number) {
+  if (!config.propertiesTableId || !config.databaseId) return;
+
+  try {
+    const property = await databases.getDocument({
+      databaseId: config.databaseId,
+      collectionId: config.propertiesTableId,
+      documentId: propertyId,
+    });
+
+    const currentValue =
+      typeof (property as Record<string, unknown>).favoritesCount === 'number'
+        ? ((property as Record<string, unknown>).favoritesCount as number)
+        : 0;
+
+    const nextValue = Math.max(0, currentValue + delta);
+
+    if (nextValue === currentValue) return;
+
+    await databases.updateDocument({
+      databaseId: config.databaseId,
+      collectionId: config.propertiesTableId,
+      documentId: propertyId,
+      data: {
+        favoritesCount: nextValue,
+      },
+    });
+  } catch (error) {
+    console.error('Failed to update favoritesCount for property:', error);
+  }
+}
+
+export async function getUserFavoritePropertyIds(userId: string) {
+  if (!userId || !config.databaseId || !config.favoritesTableId) return [];
+
+  try {
+    const response = await databases.listDocuments({
+      databaseId: config.databaseId,
+      collectionId: config.favoritesTableId,
+      queries: [Query.equal(FAVORITES_USER_FIELD, userId), Query.limit(500)],
+    });
+
+    return response.documents
+      .map((favorite) => {
+        const favoriteRecord = favorite as Record<string, unknown>;
+        return extractRelationshipId(favoriteRecord[FAVORITES_PROPERTY_FIELD]);
+      })
+      .filter((propertyId): propertyId is string => !!propertyId);
+  } catch (error) {
+    console.error('Error fetching user favorite property ids:', error);
+    return [];
+  }
+}
+
+export async function togglePropertyFavorite({
+  userId,
+  propertyId,
+}: ToggleFavoriteParams): Promise<ToggleFavoriteResponse> {
+  if (!userId || !propertyId || !config.databaseId || !config.favoritesTableId) {
+    throw new Error('Favorites configuration is incomplete.');
+  }
+
+  const existing = await databases.listDocuments({
+    databaseId: config.databaseId,
+    collectionId: config.favoritesTableId,
+    queries: [
+      Query.equal(FAVORITES_USER_FIELD, userId),
+      Query.equal(FAVORITES_PROPERTY_FIELD, propertyId),
+      Query.limit(100),
+    ],
+  });
+
+  if (existing.documents.length > 0) {
+    await Promise.all(
+      existing.documents.map((favoriteDoc) =>
+        databases.deleteDocument({
+          databaseId: config.databaseId!,
+          collectionId: config.favoritesTableId!,
+          documentId: favoriteDoc.$id,
+        }),
+      ),
+    );
+
+    await updatePropertyFavoritesCount(propertyId, -existing.documents.length);
+    return { isFavorite: false };
+  }
+
+  try {
+    await databases.createDocument({
+      databaseId: config.databaseId,
+      collectionId: config.favoritesTableId,
+      documentId: ID.unique(),
+      data: {
+        [FAVORITES_USER_FIELD]: userId,
+        [FAVORITES_PROPERTY_FIELD]: propertyId,
+      },
+    });
+  } catch (error) {
+    if (!isConflictError(error)) {
+      throw error;
+    }
+
+    // Race-safe: if another client already created this favorite, treat as favorited.
+    return { isFavorite: true };
+  }
+
+  await updatePropertyFavoritesCount(propertyId, 1);
+  return { isFavorite: true };
+}
+
+export async function getFavoritePropertiesByUser(userId: string) {
+  if (!userId || !config.databaseId || !config.favoritesTableId || !config.propertiesTableId) {
+    return [];
+  }
+
+  try {
+    const favoritesResponse = await databases.listDocuments({
+      databaseId: config.databaseId,
+      collectionId: config.favoritesTableId,
+      queries: [
+        Query.equal(FAVORITES_USER_FIELD, userId),
+        Query.orderDesc('$createdAt'),
+        Query.limit(500),
+      ],
+    });
+
+    const propertyIds = favoritesResponse.documents
+      .map((favorite) => {
+        const favoriteRecord = favorite as Record<string, unknown>;
+        return extractRelationshipId(favoriteRecord[FAVORITES_PROPERTY_FIELD]);
+      })
+      .filter((favoritePropertyId): favoritePropertyId is string => !!favoritePropertyId);
+
+    if (propertyIds.length === 0) return [];
+
+    const propertiesResponse = await databases.listDocuments({
+      databaseId: config.databaseId,
+      collectionId: config.propertiesTableId,
+      queries: [Query.equal('$id', propertyIds), Query.limit(propertyIds.length)],
+    });
+
+    const propertyMap = new Map(
+      propertiesResponse.documents.map((property) => [property.$id, property]),
+    );
+
+    return propertyIds
+      .map((favoritePropertyId) => propertyMap.get(favoritePropertyId) ?? null)
+      .filter((property) => property !== null);
+  } catch (error) {
+    console.error('Error fetching favorite properties:', error);
+    return [];
+  }
+}
 
 export async function login() {
   try {

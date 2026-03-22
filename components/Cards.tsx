@@ -1,8 +1,9 @@
 import icons from '@/constants/icons';
 import images from '@/constants/images';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { GestureResponderEvent, Text, TouchableOpacity, View } from 'react-native';
 
 interface PropertyItem {
   $id: string;
@@ -16,6 +17,10 @@ interface PropertyItem {
 interface Props {
   item?: PropertyItem;
   onPress?: () => void;
+  showFavorite?: boolean;
+  isFavorite?: boolean;
+  onToggleFavorite?: () => void;
+  favoriteDisabled?: boolean;
 }
 
 const getImageSource = (
@@ -44,11 +49,23 @@ const cardShadowStyle = {
   elevation: 4,
 };
 
-export const FeaturedCards = ({ item, onPress }: Props) => {
+export const FeaturedCards = ({
+  item,
+  onPress,
+  showFavorite = true,
+  isFavorite = false,
+  onToggleFavorite,
+  favoriteDisabled = false,
+}: Props) => {
   const name = item?.name ?? 'Modern Apartment';
   const address = item?.address ?? '22 Sadam Avenue, Tokyo';
   const rating = item?.rating ?? 4.4;
   const price = item?.price ?? 2500;
+
+  const handleFavoritePress = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    onToggleFavorite?.();
+  };
 
   return (
     <TouchableOpacity onPress={onPress} className="relative flex h-80 w-60 flex-col items-start">
@@ -80,18 +97,45 @@ export const FeaturedCards = ({ item, onPress }: Props) => {
           <Text className="font-rubik-extra-bold text-xl text-white">
             ${price.toLocaleString()}
           </Text>
-          <Image source={icons.heart} style={{ width: 20, height: 20 }} contentFit="contain" />
+          {showFavorite ? (
+            <TouchableOpacity
+              onPress={handleFavoritePress}
+              disabled={favoriteDisabled}
+              className="rounded-full bg-white/10 p-1"
+              accessibilityRole="button"
+              accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              accessibilityState={{ disabled: favoriteDisabled, selected: isFavorite }}
+            >
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={20}
+                color={isFavorite ? '#EF4444' : '#FFFFFF'}
+              />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     </TouchableOpacity>
   );
 };
 
-export const Cards = ({ item, onPress }: Props) => {
+export const Cards = ({
+  item,
+  onPress,
+  showFavorite = true,
+  isFavorite = false,
+  onToggleFavorite,
+  favoriteDisabled = false,
+}: Props) => {
   const name = item?.name ?? 'Cozy Studio';
   const address = item?.address ?? '22 Sadam Avenue, Tokyo';
   const rating = item?.rating ?? 4.4;
   const price = item?.price ?? 2500;
+
+  const handleFavoritePress = (event: GestureResponderEvent) => {
+    event.stopPropagation();
+    onToggleFavorite?.();
+  };
 
   return (
     <TouchableOpacity
@@ -119,11 +163,22 @@ export const Cards = ({ item, onPress }: Props) => {
           <Text className="font-rubik-bold text-base text-primary-300">
             ${price.toLocaleString()}
           </Text>
-          <Image
-            source={icons.heart}
-            style={{ width: 20, height: 20, tintColor: '#191D31' }}
-            contentFit="contain"
-          />
+          {showFavorite ? (
+            <TouchableOpacity
+              onPress={handleFavoritePress}
+              disabled={favoriteDisabled}
+              className="p-1"
+              accessibilityRole="button"
+              accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              accessibilityState={{ disabled: favoriteDisabled, selected: isFavorite }}
+            >
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={20}
+                color={isFavorite ? '#EF4444' : '#191D31'}
+              />
+            </TouchableOpacity>
+          ) : null}
         </View>
       </View>
     </TouchableOpacity>

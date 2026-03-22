@@ -3,7 +3,9 @@ import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { logout } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import React from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,13 +16,23 @@ interface SettingsItemProps {
   onPress?: () => void;
   textStyle?: string;
   showArrow?: boolean;
+  iconElement?: React.ReactNode;
 }
 
-const SettingsItem = ({ title, icon, onPress, textStyle, showArrow = true }: SettingsItemProps) => {
+const SettingsItem = ({
+  title,
+  icon,
+  onPress,
+  textStyle,
+  showArrow = true,
+  iconElement,
+}: SettingsItemProps) => {
   return (
     <TouchableOpacity className="flex flex-row items-center justify-between py-3" onPress={onPress}>
       <View className="flex flex-row items-center justify-between gap-3">
-        <Image source={icon} style={{ width: 20, height: 20 }} contentFit="contain" />
+        {iconElement ?? (
+          <Image source={icon} style={{ width: 20, height: 20 }} contentFit="contain" />
+        )}
         <Text className={`font-rubik-medium text-lg text-black-300 ${textStyle}`}>{title}</Text>
       </View>
       {showArrow && (
@@ -72,6 +84,12 @@ const Profile = () => {
         <View className="mt-10 flex flex-col">
           <SettingsItem title="My Bookings" icon={icons.calendar} onPress={() => {}} />
           <SettingsItem title="Payments" icon={icons.wallet} onPress={() => {}} />
+          <SettingsItem
+            title="Favorites"
+            icon={icons.heart}
+            iconElement={<Ionicons name="heart-outline" size={20} color="#191D31" />}
+            onPress={() => router.push('/favorites')}
+          />
         </View>
         <View className="mt-5 flex flex-col border-t border-primary-200 pt-5">
           {settings.slice(2).map((item) => (

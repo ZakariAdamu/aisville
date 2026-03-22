@@ -313,7 +313,7 @@ export default function BookingDetails() {
   }
 
   return (
-    <View className="flex-1 bg-white">
+    <View className="flex-1 bg-white pb-14 pt-12">
       <View className="border-b border-primary-100 bg-white px-5 pb-4 pt-2">
         <View className="flex flex-row items-center justify-between">
           <TouchableOpacity
@@ -360,7 +360,7 @@ export default function BookingDetails() {
         </View>
       </View>
 
-      <ScrollView contentContainerClassName="px-5 pb-12 pt-4" showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerClassName="px-5 pb-2 pt-4" showsVerticalScrollIndicator={false}>
         <View className="rounded-2xl border border-primary-100 p-4">
           <Text className="font-rubik-bold text-base text-black-300">Inspection Scheduling</Text>
           <Text className="mt-1 font-rubik-regular text-sm text-black-200">

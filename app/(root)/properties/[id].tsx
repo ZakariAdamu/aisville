@@ -19,6 +19,8 @@ import { getPropertyById } from '@/lib/appwrite';
 
 import Comment from '@/components/Comment';
 import { useAppwrite } from '@/lib/useAppwrite';
+import { useFavorites } from '@/lib/useFavorites';
+import { Ionicons } from '@expo/vector-icons';
 import { Models } from 'react-native-appwrite';
 
 interface Agent {
@@ -73,6 +75,12 @@ const Property = () => {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const [showMapPreview, setShowMapPreview] = useState(false);
   const [mapPreviewFailed, setMapPreviewFailed] = useState(false);
+  const {
+    favoriteIds,
+    toggleFavorite,
+    isTogglingFavorite,
+    loading: loadingFavorites,
+  } = useFavorites();
 
   const windowHeight = Dimensions.get('window').height;
 
@@ -102,6 +110,8 @@ const Property = () => {
     })
     .filter((item): item is GalleryItem => item !== null);
   const propertyFacilities = Array.isArray(property?.facilities) ? property.facilities : [];
+  const isFavorite = property?.$id ? favoriteIds.has(property.$id) : false;
+  const favoriteDisabled = !property?.$id || loadingFavorites || isTogglingFavorite(property.$id);
 
   const googleMapPreviewUrl = useMemo(() => {
     const location = (property?.address ?? '').trim();
@@ -159,22 +169,32 @@ const Property = () => {
                   contentFit="contain"
                 />
               </TouchableOpacity>
-
-              <View className="flex flex-row items-center gap-3">
-                <Image
-                  source={icons.heart}
-                  style={{ width: 28, height: 28, tintColor: '#191D31' }}
-                  contentFit="contain"
-                />
-                <Image source={icons.send} style={{ width: 28, height: 28 }} contentFit="contain" />
-              </View>
             </View>
           </View>
         </View>
 
         <View className="mt-7 flex gap-2 px-5">
-          <Text className="font-rubik-extrabold text-2xl">{property?.name}</Text>
-
+          <View className="flex flex-row items-center justify-between gap-3">
+            <Text className="font-rubik-extrabold text-2xl">{property?.name}</Text>
+            <TouchableOpacity
+              disabled={favoriteDisabled}
+              onPress={() => {
+                if (!property?.$id) return;
+                toggleFavorite(property.$id);
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+              accessibilityState={{ disabled: favoriteDisabled, selected: isFavorite }}
+              className="p-2"
+            >
+              <Ionicons
+                name={isFavorite ? 'heart' : 'heart-outline'}
+                size={28}
+                color={isFavorite ? '#EF4444' : '#191D31'}
+              />
+            </TouchableOpacity>
+            {/* <Image source={icons.send} style={{ width: 28, height: 28 }} contentFit="contain" /> */}
+          </View>
           <View className="flex flex-row items-center gap-3">
             <View className="flex flex-row items-center rounded-full bg-primary-100 px-4 py-2">
               <Text className="font-rubik-bold text-xs text-primary-300">{property?.type}</Text>
@@ -377,7 +397,7 @@ const Property = () => {
       </ScrollView>
 
       <View className="absolute bottom-0 w-full rounded-t-2xl border-l border-r border-t border-primary-200 bg-white p-7 pb-12 shadow-md shadow-zinc-400">
-        <View className="flex flex-row items-center justify-between gap-10">
+        <View className="flex flex-row items-center justify-between gap-10 pb-5">
           <View className="flex flex-col items-start">
             <Text className="font-rubik-medium text-xs text-black-200">Price</Text>
             <Text
