@@ -5,14 +5,12 @@ import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { getLatestProperties, getProperties } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
-import seed from '@/lib/seed';
 import { useAppwrite } from '@/lib/useAppwrite';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Animated,
-  Button,
   FlatList,
   StyleProp,
   Text,
@@ -136,7 +134,6 @@ export default function Index() {
 
   return (
     <SafeAreaView className="h-full bg-white">
-      <Button title="seed" onPress={seed} />
       <FlatList
         data={recommendationList as PropertyItem[]}
         renderItem={({ item }) => (
