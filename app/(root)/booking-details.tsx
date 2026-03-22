@@ -1,12 +1,22 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { Alert, Linking, ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  Alert,
+  Animated,
+  Linking,
+  ScrollView,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 
 import icons from '@/constants/icons';
 import images from '@/constants/images';
 import { getPropertyById } from '@/lib/appwrite';
 import { useAppwrite } from '@/lib/useAppwrite';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface AgentDetails {
   name?: string;
@@ -145,7 +155,7 @@ export default function BookingDetails() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
-  const [attendees, setAttendees] = useState('1');
+  const [attendees, setAttendees] = useState('');
   const [contactMethod, setContactMethod] = useState(contactMethods[0]);
   const [interestType, setInterestType] = useState<string>('');
   const [budgetRange, setBudgetRange] = useState<string>('');
@@ -153,6 +163,8 @@ export default function BookingDetails() {
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [agreeLateness, setAgreeLateness] = useState(false);
   const [isConfirmed, setIsConfirmed] = useState(false);
+  const toastScale = useRef(new Animated.Value(0.7)).current;
+  const toastOpacity = useRef(new Animated.Value(0)).current;
 
   const selectedDate = dateOptions.find((option) => option.key === selectedDateKey) ?? null;
   const selectedSlot = timeSlots.find((slot) => slot.label === selectedTimeSlot) ?? null;
@@ -169,6 +181,27 @@ export default function BookingDetails() {
     agreeTerms &&
     agreeLateness;
   const hasAcceptedTerms = agreeTerms && agreeLateness;
+
+  useEffect(() => {
+    if (!isConfirmed) return;
+
+    toastScale.setValue(0.7);
+    toastOpacity.setValue(0);
+
+    Animated.parallel([
+      Animated.timing(toastOpacity, {
+        toValue: 1,
+        duration: 220,
+        useNativeDriver: true,
+      }),
+      Animated.spring(toastScale, {
+        toValue: 1,
+        friction: 4,
+        tension: 110,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [isConfirmed, toastOpacity, toastScale]);
 
   const openDirections = async () => {
     const destination = property?.address ?? 'Property location';
@@ -250,70 +283,103 @@ export default function BookingDetails() {
 
   if (isConfirmed) {
     return (
-      <ScrollView
-        contentContainerClassName="bg-white px-5 pb-12 pt-6"
-        showsVerticalScrollIndicator={false}
-      >
-        <View className="items-center">
-          <View className="mb-4 rounded-full bg-primary-100 p-4">
-            <Image source={icons.calendar} style={{ width: 32, height: 32 }} contentFit="contain" />
+      <SafeAreaView className="flex-1 bg-white">
+        <Animated.View
+          style={{
+            position: 'absolute',
+            top: 42,
+            left: 20,
+            right: 20,
+            zIndex: 20,
+            opacity: toastOpacity,
+            transform: [{ scale: toastScale }],
+          }}
+        >
+          <View className="flex-row items-center rounded-2xl bg-green-600 px-4 py-3 shadow-lg">
+            <View className="mr-3 size-7 items-center justify-center rounded-full bg-white">
+              <Text className="font-rubik-bold text-base text-green-600">✓</Text>
+            </View>
+            <View className="flex-1">
+              <Text className="font-rubik-bold text-sm text-white">Booking successful</Text>
+              <Text className="mt-0.5 font-rubik-regular text-xs text-white">
+                Your inspection has been reserved.
+              </Text>
+            </View>
           </View>
-          <Text className="text-center font-rubik-bold text-2xl text-black-300">
-            Inspection Reserved
-          </Text>
-          <Text className="mt-2 text-center font-rubik-regular text-sm text-black-200">
-            Your slot has been confirmed. We have sent the details to your preferred contact method.
-          </Text>
-        </View>
+        </Animated.View>
 
-        <View className="bg-primary-50 mt-6 rounded-2xl border border-primary-100 p-4">
-          <Text className="font-rubik-bold text-base text-black-300">Appointment Details</Text>
-          <Text className="mt-2 font-rubik-regular text-sm text-black-200">
-            Date: {selectedDate ? formatCalendarDate(selectedDate.date) : 'N/A'}
-          </Text>
-          <Text className="mt-1 font-rubik-regular text-sm text-black-200">
-            Time: {selectedSlot?.label ?? 'N/A'} ({selectedSlot?.period ?? 'N/A'})
-          </Text>
-          <Text className="mt-1 font-rubik-regular text-sm text-black-200">
-            Agent: {property.agent?.name ?? 'Assigned agent'} ({property.agent?.email ?? 'No email'}
-            )
-          </Text>
-        </View>
+        <ScrollView
+          contentContainerClassName="bg-white px-5 pb-12 pt-20"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="items-center">
+            <View className="mb-4 rounded-full bg-primary-100 p-4">
+              <Image
+                source={icons.calendar}
+                style={{ width: 32, height: 32 }}
+                contentFit="contain"
+              />
+            </View>
+            <Text className="text-center font-rubik-bold text-2xl text-black-300">
+              Inspection Reserved
+            </Text>
+            <Text className="mt-2 text-center font-rubik-regular text-sm text-black-200">
+              Your slot has been confirmed. We have sent the details to your preferred contact
+              method.
+            </Text>
+          </View>
 
-        <View className="mt-6 rounded-2xl border border-primary-100 bg-white p-3">
-          <Text className="mb-2 font-rubik-bold text-base text-black-300">Map Preview</Text>
-          <Image
-            source={images.map}
-            style={{ width: '100%', height: 180, borderRadius: 12 }}
-            contentFit="cover"
-          />
+          <View className="bg-primary-50 mt-6 rounded-2xl border border-primary-100 p-4">
+            <Text className="font-rubik-bold text-base text-black-300">Appointment Details</Text>
+            <Text className="mt-2 font-rubik-regular text-sm text-black-200">
+              Date: {selectedDate ? formatCalendarDate(selectedDate.date) : 'N/A'}
+            </Text>
+            <Text className="mt-1 font-rubik-regular text-sm text-black-200">
+              Time: {selectedSlot?.label ?? 'N/A'} ({selectedSlot?.period ?? 'N/A'})
+            </Text>
+            <Text className="mt-1 font-rubik-regular text-sm text-black-200">
+              Agent: {property.agent?.name ?? 'Assigned agent'} (
+              {property.agent?.email ?? 'No email'})
+            </Text>
+          </View>
+
+          <View className="mt-6 rounded-2xl border border-primary-100 bg-white p-3">
+            <Text className="mb-2 font-rubik-bold text-base text-black-300">Map Preview</Text>
+            <Image
+              source={images.map}
+              style={{ width: '100%', height: 180, borderRadius: 12 }}
+              contentFit="cover"
+            />
+            <TouchableOpacity
+              onPress={openDirections}
+              className="mt-3 items-center rounded-full border border-primary-200 py-3"
+            >
+              <Text className="font-rubik-medium text-primary-300">
+                Open Google Maps Directions
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           <TouchableOpacity
-            onPress={openDirections}
-            className="mt-3 items-center rounded-full border border-primary-200 py-3"
+            onPress={addToCalendar}
+            className="mt-6 items-center rounded-full bg-primary-300 py-4"
           >
-            <Text className="font-rubik-medium text-primary-300">Open Google Maps Directions</Text>
+            <Text className="font-rubik-bold text-white">Add to Calendar</Text>
           </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity
-          onPress={addToCalendar}
-          className="mt-6 items-center rounded-full bg-primary-300 py-4"
-        >
-          <Text className="font-rubik-bold text-white">Add to Calendar</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={() => router.replace('/(root)/(tabs)/explore')}
-          className="mt-3 items-center rounded-full border border-primary-200 py-4"
-        >
-          <Text className="font-rubik-bold text-black-300">Back to Explore</Text>
-        </TouchableOpacity>
-      </ScrollView>
+          <TouchableOpacity
+            onPress={() => router.replace('/(root)/(tabs)/explore')}
+            className="mt-3 items-center rounded-full border border-primary-200 py-4"
+          >
+            <Text className="font-rubik-bold text-black-300">Back to Explore</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </SafeAreaView>
     );
   }
 
   return (
-    <View className="flex-1 bg-white pb-14 pt-12">
+    <SafeAreaView className="flex-1 bg-white">
       <View className="border-b border-primary-100 bg-white px-5 pb-4 pt-2">
         <View className="flex flex-row items-center justify-between">
           <TouchableOpacity
@@ -623,6 +689,6 @@ export default function BookingDetails() {
           </Text>
         </TouchableOpacity>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

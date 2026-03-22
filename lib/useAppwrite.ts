@@ -23,32 +23,34 @@ export const useAppwrite = <T, P extends Record<string, string | number>>({
   const [loading, setLoading] = useState(!skip);
   const [error, setError] = useState<string | null>(null);
   const requestIdRef = useRef(0);
+  const fnRef = useRef(fn);
 
-  const fetchData = useCallback(
-    async (fetchParams: P) => {
-      const requestId = ++requestIdRef.current;
-      setLoading(true);
-      setError(null);
+  useEffect(() => {
+    fnRef.current = fn;
+  }, [fn]);
 
-      try {
-        const result = await fn(fetchParams);
-        if (requestId === requestIdRef.current) {
-          setData(result);
-        }
-      } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-        if (requestId === requestIdRef.current) {
-          setError(errorMessage);
-          Alert.alert('Error', errorMessage);
-        }
-      } finally {
-        if (requestId === requestIdRef.current) {
-          setLoading(false);
-        }
+  const fetchData = useCallback(async (fetchParams: P) => {
+    const requestId = ++requestIdRef.current;
+    setLoading(true);
+    setError(null);
+
+    try {
+      const result = await fnRef.current(fetchParams);
+      if (requestId === requestIdRef.current) {
+        setData(result);
       }
-    },
-    [fn],
-  );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
+      if (requestId === requestIdRef.current) {
+        setError(errorMessage);
+        Alert.alert('Error', errorMessage);
+      }
+    } finally {
+      if (requestId === requestIdRef.current) {
+        setLoading(false);
+      }
+    }
+  }, []);
 
   const paramsKey = useMemo(() => {
     const sortedEntries = Object.entries(params).sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
