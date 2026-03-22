@@ -87,11 +87,30 @@ const EmptyState = ({ title }: { title: string }) => (
   </View>
 );
 
+const getTimeBasedGreeting = () => {
+  const hour = new Date().getHours();
+
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+};
+
 export default function Index() {
   const { user } = useGlobalContext();
   const [showFilters, setShowFilters] = useState(true);
   const [showAllFeatured, setShowAllFeatured] = useState(false);
   const [showAllRecommended, setShowAllRecommended] = useState(false);
+  const [greeting, setGreeting] = useState(getTimeBasedGreeting());
+
+  useEffect(() => {
+    setGreeting(getTimeBasedGreeting());
+
+    const intervalId = setInterval(() => {
+      setGreeting(getTimeBasedGreeting());
+    }, 60_000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
   const queryValue = useMemo(() => (params.query ?? '').toString().trim(), [params.query]);
@@ -166,7 +185,7 @@ export default function Index() {
                   contentFit="contain"
                 />
                 <View className="ml-2 flex flex-col items-start justify-center">
-                  <Text className="font-rubik-regular text-xs text-black-100">Good morning</Text>
+                  <Text className="font-rubik-regular text-xs text-black-100">{greeting}</Text>
                   <Text className="font-rubik-medium text-base text-black-300">{user?.name}</Text>
                 </View>
               </View>
