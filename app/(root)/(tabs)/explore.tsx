@@ -4,6 +4,7 @@ import Search from '@/components/Search';
 import icons from '@/constants/icons';
 import { getProperties } from '@/lib/appwrite';
 import { useAppwrite } from '@/lib/useAppwrite';
+import { useFavorites } from '@/lib/useFavorites';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -55,16 +56,17 @@ const PulseBlock = ({ style }: PulseBlockProps) => {
 
 // Recommendation Skeleton Component
 const RecommendationSkeleton = () => (
-  <View className="mt-4 px-5">
-    <View className="flex flex-row flex-wrap justify-between">
-      {[1, 2, 3, 4].map((item) => (
-        <PulseBlock
-          key={item}
-          style={{ marginBottom: 16, height: 256, width: 176, borderRadius: 8 }}
-        />
-      ))}
-    </View>
-  </View>
+  <FlatList
+    data={[1, 2, 3, 4, 5, 6]}
+    keyExtractor={(item) => item.toString()}
+    numColumns={2}
+    scrollEnabled={false}
+    columnWrapperClassName="flex gap-5 px-5"
+    contentContainerClassName="mt-4"
+    renderItem={() => (
+      <PulseBlock style={{ marginBottom: 16, height: 256, width: '48%', borderRadius: 8 }} />
+    )}
+  />
 );
 
 const EmptyState = ({ title }: { title: string }) => (
@@ -76,6 +78,12 @@ const EmptyState = ({ title }: { title: string }) => (
 export default function Explore() {
   const [showFilters, setShowFilters] = useState(true);
   const [showAllRecommended] = useState(false);
+  const {
+    favoriteIds,
+    toggleFavorite,
+    isTogglingFavorite,
+    loading: loadingFavorites,
+  } = useFavorites();
 
   const params = useLocalSearchParams<{ query?: string; filter?: string }>();
   const queryValue = useMemo(() => (params.query ?? '').toString().trim(), [params.query]);
@@ -103,7 +111,16 @@ export default function Explore() {
     <SafeAreaView className="h-full bg-white">
       <FlatList
         data={recommendationList as PropertyItem[]}
-        renderItem={({ item }) => <Cards item={item} onPress={() => handleCardPress(item.$id)} />}
+        renderItem={({ item }) => (
+          <Cards
+            item={item}
+            onPress={() => handleCardPress(item.$id)}
+            isFavorite={favoriteIds.has(item.$id)}
+            onToggleFavorite={() => toggleFavorite(item.$id)}
+            favoriteDisabled={loadingFavorites || isTogglingFavorite(item.$id)}
+            showFavorite={false}
+          />
+        )}
         keyExtractor={(item) => item.$id}
         numColumns={2}
         contentContainerClassName="pb-32"
