@@ -91,7 +91,7 @@ The application focuses on **performance, usability, and scalable backend integr
 
 ### 3. UX Flow for Booking
 Designed a frictionless flow:  
-**Property → Book Inspection → Confirmation → Bookings Feedback**
+**Property → Book Inspection → Confirmation → My Bookings**
 
 ---
 
