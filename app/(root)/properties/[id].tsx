@@ -22,6 +22,7 @@ import { useAppwrite } from '@/lib/useAppwrite';
 import { useFavorites } from '@/lib/useFavorites';
 import { Ionicons } from '@expo/vector-icons';
 import { Models } from 'react-native-appwrite';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface Agent {
   name?: string;
@@ -138,7 +139,7 @@ const Property = () => {
   }
 
   return (
-    <View>
+    <SafeAreaView className="flex-1 bg-white">
       <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-32 bg-white">
         <View className="relative w-full" style={{ height: windowHeight / 2 }}>
           <Image
@@ -421,7 +422,7 @@ const Property = () => {
           </TouchableOpacity>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
