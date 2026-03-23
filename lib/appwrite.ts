@@ -44,6 +44,7 @@ interface ToggleFavoriteParams {
 export interface BookingData {
   userId: string;
   propertyId: string;
+  propertyName?: string;
   inspectionDate: string;
   inspectionTime: string;
   inspectionType: string;
@@ -491,7 +492,6 @@ export async function submitBooking(booking: BookingData) {
       data: {
         ...booking,
         attendees: Number(booking.attendees),
-        createdAt: new Date().toISOString(),
       },
     });
 

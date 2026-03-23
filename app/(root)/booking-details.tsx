@@ -28,6 +28,7 @@ interface AgentDetails {
 interface PropertyDetails {
   $id: string;
   name?: string;
+  title?: string;
   image?: string;
   address?: string;
   price?: number;
@@ -263,6 +264,7 @@ export default function BookingDetails() {
       const bookingData: BookingData = {
         userId: user?.email || '',
         propertyId,
+        propertyName: property?.name?.trim() || property?.title?.trim() || undefined,
         inspectionDate: selectedDate.date.toISOString().split('T')[0],
         inspectionTime: selectedSlot.label,
         inspectionType,

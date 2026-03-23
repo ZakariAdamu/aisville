@@ -1,12 +1,12 @@
 import icons from '@/constants/icons';
 import images from '@/constants/images';
-import { getUserBookings, logout, type BookingData } from '@/lib/appwrite';
+import { getPropertyById, getUserBookings, logout, type BookingData } from '@/lib/appwrite';
 import { useGlobalContext } from '@/lib/global-provider';
 import { useAppwrite } from '@/lib/useAppwrite';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Alert, FlatList, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -18,6 +18,28 @@ interface SettingsItemProps {
   showArrow?: boolean;
   iconElement?: React.ReactNode;
 }
+
+const SLOT_TIME_PATTERN = /^\d{1,2}:\d{2}\s?(AM|PM)$/i;
+
+const formatInspectionTime = (inspectionTime: string) => {
+  const normalizedValue = inspectionTime.trim();
+
+  if (SLOT_TIME_PATTERN.test(normalizedValue)) {
+    return normalizedValue.toUpperCase();
+  }
+
+  const parsedDate = new Date(normalizedValue);
+  if (Number.isNaN(parsedDate.getTime())) {
+    return normalizedValue;
+  }
+
+  return parsedDate.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+    timeZone: 'UTC',
+  });
+};
 
 const StatusBadge = ({ status }: { status: string }) => {
   const colors: Record<string, { bg: string; text: string }> = {
@@ -38,15 +60,18 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-const BookingCard = ({ booking }: { booking: BookingData & { $id?: string } }) => (
+const BookingCard = ({
+  booking,
+  propertyName,
+}: {
+  booking: BookingData & { $id?: string };
+  propertyName?: string;
+}) => (
   <View className="mb-3 rounded-2xl border border-primary-100 bg-white p-4">
     <View className="flex flex-row items-start justify-between">
       <View className="flex-1">
         <Text className="font-rubik-bold text-base text-black-300">
-          Property ID: {booking.propertyId}
-        </Text>
-        <Text className="mt-1 font-rubik-regular text-xs text-black-200">
-          {booking.inspectionDate} at {booking.inspectionTime}
+          {propertyName || 'Property Name'}
         </Text>
         <Text className="mt-1 font-rubik-regular text-xs text-black-200">
           Type: {booking.inspectionType}
@@ -78,6 +103,25 @@ const BookingCard = ({ booking }: { booking: BookingData & { $id?: string } }) =
             <Text className="font-rubik-medium text-xs text-black-300">{booking.interestType}</Text>
           </View>
         )}
+      </View>
+
+      <View className="mt-2 flex flex-row justify-between">
+        <View className="flex-1">
+          <Text className="font-rubik-regular text-xs text-black-200">Date</Text>
+          <Text className="font-rubik-medium text-xs text-black-300">
+            {new Date(booking.inspectionDate).toLocaleDateString('en-US', {
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+            })}
+          </Text>
+        </View>
+        <View className="flex-1">
+          <Text className="font-rubik-regular text-xs text-black-200">Time</Text>
+          <Text className="font-rubik-medium text-xs text-black-300">
+            {formatInspectionTime(booking.inspectionTime)}
+          </Text>
+        </View>
       </View>
 
       {booking.notes && (
@@ -126,6 +170,7 @@ const SettingsItem = ({
 const Profile = () => {
   const { user, refetch } = useGlobalContext();
   const [showBookings, setShowBookings] = React.useState(false);
+  const [propertyNamesById, setPropertyNamesById] = React.useState<Record<string, string>>({});
 
   const { data: bookings, loading: bookingsLoading } = useAppwrite({
     fn: () => (user?.email ? getUserBookings(user.email) : Promise.resolve([])),
@@ -134,6 +179,53 @@ const Profile = () => {
   });
 
   const bookingsList = useMemo(() => bookings ?? [], [bookings]);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const resolvePropertyNames = async () => {
+      const ids = Array.from(
+        new Set(
+          bookingsList
+            .filter((booking) => !booking?.propertyName)
+            .map((booking) => booking?.propertyId)
+            .filter((propertyId): propertyId is string => !!propertyId),
+        ),
+      );
+
+      if (ids.length === 0) {
+        if (isMounted) setPropertyNamesById({});
+        return;
+      }
+
+      const resolved = await Promise.all(
+        ids.map(async (propertyId) => {
+          const property = await getPropertyById(propertyId);
+          const record = property as Record<string, unknown> | null;
+          const name =
+            (typeof record?.name === 'string' && record.name.trim()) ||
+            (typeof record?.title === 'string' && record.title.trim()) ||
+            propertyId;
+
+          return { propertyId, name };
+        }),
+      );
+
+      if (!isMounted) return;
+
+      const nextMap: Record<string, string> = {};
+      resolved.forEach(({ propertyId, name }) => {
+        nextMap[propertyId] = name;
+      });
+      setPropertyNamesById(nextMap);
+    };
+
+    resolvePropertyNames();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [bookingsList]);
 
   const handleLogout = async () => {
     const response = await logout();
@@ -145,6 +237,7 @@ const Profile = () => {
     }
   };
 
+  // Bookings list screen
   if (showBookings) {
     return (
       <SafeAreaView className="h-full bg-white">
@@ -169,7 +262,13 @@ const Profile = () => {
               scrollEnabled={false}
               data={bookingsList}
               renderItem={({ item }) => (
-                <BookingCard booking={item as BookingData & { $id?: string }} />
+                <BookingCard
+                  booking={item as BookingData & { $id?: string }}
+                  propertyName={
+                    (item as BookingData).propertyName ||
+                    propertyNamesById[(item as BookingData).propertyId]
+                  }
+                />
               )}
               keyExtractor={(item: any, index) => item?.$id || index.toString()}
               ListEmptyComponent={<EmptyBookings />}
