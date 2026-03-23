@@ -74,8 +74,11 @@ The application focuses on **performance, usability, and scalable backend integr
 
 ## 🎥 Demo
 
-- 👉 Add your Loom / screen recording here  
-- 👉 Add APK or TestFlight link if available  
+### 📱 Download APK
+[Download App](your-apk-link-here)
+
+### 🎥 Demo
+[Watch Demo](https://vimeo.com/1176176055?share=copy&fl=sv&fe=ci) 
 
 ---
 
