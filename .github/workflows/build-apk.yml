@@ -33,7 +33,9 @@ jobs:
         run: npm ci
 
       - name: 🩺 Run Preflight Checks
-        run: npm run build:check
+        # build:check includes check-env.js which expects local runtime env values.
+        # In CI, run static checks directly to avoid failing before EAS build starts.
+        run: npm run lint && npm run typecheck && npx expo-doctor
 
       - name: 🚀 Build APK
         # --non-interactive is required for CI
