@@ -1,0 +1,33 @@
+{
+  "build": {
+    "development": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "channel": "development"
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_APPWRITE_ENDPOINT": "https://fra.cloud.appwrite.io/v1",
+        "EXPO_PUBLIC_APPWRITE_GALLERIES_TABLE_ID": "galleries",
+        "EXPO_PUBLIC_APPWRITE_REVIEWS_TABLE_ID": "reviews",
+        "EXPO_PUBLIC_APPWRITE_AGENTS_TABLE_ID": "agents",
+        "EXPO_PUBLIC_APPWRITE_PROPERTIES_TABLE_ID": "properties",
+        "EXPO_PUBLIC_APPWRITE_FAVORITES_TABLE_ID": "favorites",
+        "EXPO_PUBLIC_APPWRITE_BOOKINGS_TABLE_ID": "bookings"
+      }
+    },
+    "production": {
+      "channel": "production",
+      "android": {
+        "buildType": "app-bundle"
+      }
+    }
+  }
+}
