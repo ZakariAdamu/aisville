@@ -29,6 +29,13 @@
       "prettier --write"
     ]
   },
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "enabled": false
+      }
+    }
+  },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
     "@react-navigation/bottom-tabs": "^7.4.0",
@@ -66,6 +73,7 @@
     "@commitlint/cli": "^20.4.2",
     "@commitlint/config-conventional": "^20.4.2",
     "@types/react": "~19.1.10",
+    "babel-plugin-module-resolver": "^5.0.3",
     "babel-preset-expo": "~54.0.10",
     "eslint": "^9.39.3",
     "eslint-config-expo": "~10.0.0",
